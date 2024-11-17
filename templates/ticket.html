@@ -1,0 +1,69 @@
+<!-- ticket_booking.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+    <div class="max-w-3xl mx-auto p-8 bg-white mt-10 rounded shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Book Tickets for {{ museum.name }}</h2>
+
+        <form method="POST" id="ticket-form">
+            {% csrf_token %}
+            <div id="ticket-container">
+                <!-- Render each ticket form -->
+                {% for form in forms %}
+                <div class="ticket-item mb-6 p-4 border rounded bg-gray-50">
+                    <h3 class="text-lg font-semibold mb-2">Ticket {{ forloop.counter }}</h3>
+                    {{ form.as_p }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Add Another Ticket Button -->
+            <button type="button" id="add-ticket" class="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600">
+                Add Another Ticket
+            </button>
+
+            <!-- Submit Button -->
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mt-4 hover:bg-green-600 block">
+                Submit
+            </button>
+
+            <input type="hidden" name="form-TOTAL_FORMS" id="form-TOTAL_FORMS" value="{{ forms|length }}">
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let formCount = {{ forms|length }}; // Initial form count
+
+            document.getElementById('add-ticket').addEventListener('click', function () {
+                // Clone the first form as a template
+                const firstForm = document.querySelector('.ticket-item').cloneNode(true);
+
+                // Reset input values in the cloned form
+                firstForm.querySelectorAll('input, select').forEach(input => {
+                    input.value = '';
+                    input.name = input.name.replace(/\d+/, formCount);
+                    input.id = input.id.replace(/\d+/, formCount);
+                });
+
+                // Update form count and adjust hidden input
+                formCount++;
+                document.getElementById('form-TOTAL_FORMS').value = formCount;
+
+                // Append cloned form to the container
+                document.getElementById('ticket-container').appendChild(firstForm);
+            });
+        });
+    </script>
+</body>
+
+</html>
